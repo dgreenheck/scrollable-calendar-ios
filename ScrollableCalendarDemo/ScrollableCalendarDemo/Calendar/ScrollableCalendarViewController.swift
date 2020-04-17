@@ -52,7 +52,7 @@ class ScrollableCalendarViewController: UIViewController {
         let year = calendar.component(.year, from: today)
         let month = calendar.component(.month, from: today)
         let day = calendar.component(.day, from: today)
-        let dayOffset = getDayOffset(year: year, month: month)
+        let dayOffset = self.dayOffset(year: year, month: month)
         
         if firstTimeRunning {
             collectionView.scrollToItem(at: IndexPath(item: day + dayOffset + 7, section: numberOfPastMonths), at: .centeredVertically, animated: false)
@@ -78,8 +78,8 @@ extension ScrollableCalendarViewController: UICollectionViewDataSource {
 
         if let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "calendarHeaderView", for: indexPath) as? CalendarHeaderView {
             
-            let year = getYearForIndexPath(indexPath: indexPath)
-            let month = getMonthForIndexPath(indexPath: indexPath)
+            let year = self.year(at: indexPath)
+            let month = self.month(at: indexPath)
             let dateComponents = DateComponents(year: year, month: month)
             let date = calendar.date(from: dateComponents)
             sectionHeader.titleLabel.text = date?.toString(dateFormat: "MMMM YYYY")
@@ -94,16 +94,15 @@ extension ScrollableCalendarViewController: UICollectionViewDataSource {
     
         let indexPath = IndexPath(item: 0, section: section)
         
-        let year = getYearForIndexPath(indexPath: indexPath)
-        let month = getMonthForIndexPath(indexPath: indexPath)
-        
+        let year = self.year(at: indexPath)
+        let month = self.month(at: indexPath)
         let dateComponents = DateComponents(year: year, month: month)
         let date = calendar.date(from: dateComponents)!
+   
+        let daysInMonth = calendar.range(of: .day, in: .month, for: date)!.count
+        let dayOffset = self.dayOffset(year: year, month: month)
         
-        // Get the number of days in the month
-        let range = calendar.range(of: .day, in: .month, for: date)!
-
-        return range.count + getDayOffset(year: year, month: month)
+        return daysInMonth + dayOffset
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -111,9 +110,9 @@ extension ScrollableCalendarViewController: UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "calendarCell", for: indexPath) as! CalendarViewCell
 
         // Display the weekday ordinal in the calendar cell
-        let year = getYearForIndexPath(indexPath: indexPath)
-        let month = getMonthForIndexPath(indexPath: indexPath)
-        if let day = getDayForIndexPath(indexPath: indexPath) {
+        let year = self.year(at: indexPath)
+        let month = self.month(at: indexPath)
+        if let day = day(at: indexPath) {
             let date = calendar.date(from: DateComponents(calendar: calendar, year: year, month: month, day: day))!
             cell.date = date
             cell.numberLabel?.text = "\(day)"
@@ -135,27 +134,27 @@ extension ScrollableCalendarViewController: UICollectionViewDataSource {
     }
     
     /// Returns the year that should be displayed at the specified index path
-    private func getYearForIndexPath(indexPath: IndexPath) -> Int {
+    private func year(at indexPath: IndexPath) -> Int {
         let shiftedDate = calendar.date(byAdding: .month, value: indexPath.section - numberOfPastMonths, to: Date())!
         let year = calendar.component(.year, from: shiftedDate)
         return year
     }
     
     /// Returns month that should be displayed at the specified index path
-    private func getMonthForIndexPath(indexPath: IndexPath) -> Int {
+    private func month(at indexPath: IndexPath) -> Int {
         let shiftedDate = calendar.date(byAdding: .month, value: indexPath.section - numberOfPastMonths, to: Date())!
         let month = calendar.component(.month, from: shiftedDate)
         return month
     }
     
     /// Returns the day of month that should be displayed at the specified index path
-    private func getDayForIndexPath(indexPath: IndexPath) -> Int? {
-        let year = getYearForIndexPath(indexPath: indexPath)
-        let month = getMonthForIndexPath(indexPath: indexPath)
+    private func day(at indexPath: IndexPath) -> Int? {
+        let year = self.year(at: indexPath)
+        let month = self.month(at: indexPath)
         
         // Account for the empty filler cells at the start of the month when
         // determining the day for the index path
-        let day = indexPath.row - getDayOffset(year: year, month: month) + 1
+        let day = indexPath.row - dayOffset(year: year, month: month) + 1
         
         guard day >= 1 else {
             return nil
@@ -167,11 +166,10 @@ extension ScrollableCalendarViewController: UICollectionViewDataSource {
     /// Returns the day offset for the specified year and month. The day
     /// offset is used to shift the days in the calendar view so the weekday
     /// ordinal is aligned with the correct weekday.
-    private func getDayOffset(year: Int, month: Int) -> Int {
+    private func dayOffset(year: Int, month: Int) -> Int {
         // Get the weekday ordinal for the first day of the month
-        let startOfMonth = calendar.date(from: DateComponents(calendar: calendar,
-                                                              year: year, month: month,
-                                                              day:  1))!
+        let firstOfMonthDateComponents = DateComponents(calendar: calendar, year: year, month: month, day:  1)
+        let startOfMonth = calendar.date(from: firstOfMonthDateComponents)!
         let dayOffset = calendar.component(.weekday, from: startOfMonth) - 1
         return dayOffset
     }
