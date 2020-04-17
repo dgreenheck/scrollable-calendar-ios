@@ -147,9 +147,9 @@
 				7DA5009424494E6B00B39206 /* CalendarViewCell.swift */,
 				7DA5009524494E6B00B39206 /* CalendarHeaderView.swift */,
 				7DA5009624494E6B00B39206 /* CalendarViewCell.xib */,
-				7DA5009724494E6B00B39206 /* ScrollableCalendarViewController.swift */,
 				7DA5009C24494F3A00B39206 /* DayViewController.swift */,
 				7DA500A02449508900B39206 /* GradientView.swift */,
+				7DA5009724494E6B00B39206 /* ScrollableCalendarViewController.swift */,
 			);
 			path = Calendar;
 			sourceTree = "<group>";

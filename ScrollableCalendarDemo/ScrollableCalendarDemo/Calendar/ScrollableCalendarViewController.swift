@@ -13,8 +13,8 @@ class ScrollableCalendarViewController: UIViewController {
     
     let numberOfPastMonths: Int = 12
     let numberOfFutureMonths: Int = 12
-    let cellHeight: Int = 70
-    let headerHeight: Int = 96
+    let cellHeight: Int = 64
+    let headerHeight: Int = 80
     
     // MARK: - Members
     
@@ -22,6 +22,8 @@ class ScrollableCalendarViewController: UIViewController {
     let calendar = Calendar.init(identifier: .gregorian)
     
     var selectedDate: Date?
+    
+    var firstTimeRunning = true
     
     // MARK: - Outlets
     
@@ -52,7 +54,10 @@ class ScrollableCalendarViewController: UIViewController {
         let day = calendar.component(.day, from: today)
         let dayOffset = getDayOffset(year: year, month: month)
         
-        collectionView.scrollToItem(at: IndexPath(item: day + dayOffset + 7, section: numberOfPastMonths), at: .centeredVertically, animated: false)
+        if firstTimeRunning {
+            collectionView.scrollToItem(at: IndexPath(item: day + dayOffset + 7, section: numberOfPastMonths), at: .centeredVertically, animated: false)
+            firstTimeRunning = false
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

@@ -13,11 +13,13 @@ class GradientView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.setupGradient()
+        self.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.setupGradient()
+        self.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     private func setupGradient() {
@@ -29,11 +31,10 @@ class GradientView: UIView {
                                 UIColor.systemBackground.withAlphaComponent(0).cgColor,
                                 UIColor.systemBackground.withAlphaComponent(0).cgColor,
                                 UIColor.systemBackground.cgColor]
-        self.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        gradientLayer.frame = self.bounds
+        setupGradient()
     }
 }
